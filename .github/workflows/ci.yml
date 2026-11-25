@@ -1,0 +1,106 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  secrets:
+    name: secrets (trufflehog)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      # 3.99.9
+      TRUFFLEHOG: ghcr.io/trufflesecurity/trufflehog@sha256:2ec535840f860aa27f11fee20222fb790326ecd66325c96bd49d02ec6af46eca
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Known providers, full history
+        run: >-
+          docker run --rm -v "$PWD:/tmp" -w /tmp "$TRUFFLEHOG"
+          git file:///tmp --no-update --github-actions --fail
+          --results=verified,unknown
+
+      # Custom detectors have no verifier, so they need "unverified" results.
+      - name: Schwab patterns, full history
+        if: ${{ !cancelled() }}
+        run: >-
+          docker run --rm -v "$PWD:/tmp" -w /tmp "$TRUFFLEHOG"
+          git file:///tmp --no-update --github-actions --fail
+          --config=/tmp/.github/trufflehog.yml
+          --include-detectors=CustomRegex
+          --results=verified,unknown,unverified
+
+  quality:
+    name: quality (semgrep)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # 1.185.0
+      SEMGREP: semgrep/semgrep@sha256:67518c174185a2043fdbed16c70631b79209499b3671178e7194379b48295a0d
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scan
+        run: >-
+          docker run --rm -v "$PWD:/src" -w /src "$SEMGREP"
+          semgrep scan --error --metrics=off --disable-version-check
+          --config=p/typescript
+          --config=p/nodejs
+          --config=p/security-audit
+          --config=p/secrets
+          --config=p/github-actions
+
+  codeql:
+    name: codeql (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write # upload CodeQL results
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, javascript-typescript]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # CodeQL fails when a language has no source files.
+      - name: Check for source
+        id: source
+        env:
+          FOUND: ${{ matrix.language == 'actions' || hashFiles('**/*.ts', '**/*.js', '**/*.mjs') != '' }}
+        run: |
+          echo "found=$FOUND" >> "$GITHUB_OUTPUT"
+          if [ "$FOUND" != "true" ]; then
+            echo "::notice::No JavaScript or TypeScript source, so CodeQL was skipped."
+          fi
+
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        if: ${{ steps.source.outputs.found == 'true' }}
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        if: ${{ steps.source.outputs.found == 'true' }}
+        with:
+          category: /language:${{ matrix.language }}

@@ -1,0 +1,36 @@
+name: Bug report
+description: Something behaves incorrectly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Issues are public.** Do not paste tokens, app keys, account numbers, or account hashes. Replace them with `REDACTED`.
+
+        If the bug exposes credentials or can cause a wrong or duplicate order, [report it privately](https://github.com/nickwilliamsphd/schwab-ts/security/advisories/new) instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Use the simulator or a redacted payload where possible.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Package, Node, and OS versions
+    validations:
+      required: true
+  - type: checkboxes
+    id: redacted
+    attributes:
+      label: Confirmation
+      options:
+        - label: I removed all credentials and account data from this report.
+          required: true
