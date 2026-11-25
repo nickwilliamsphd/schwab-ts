@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # The npm entry is added with the workspace manifest. Until one exists,
+  # Dependabot would report an error on every run.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']

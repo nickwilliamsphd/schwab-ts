@@ -1,0 +1,26 @@
+# Schwab-shaped secrets that TruffleHog has no built-in detector for.
+# Nothing here can be verified against a live endpoint, so matches are always
+# reported as "unverified". CI runs these in a separate pass for that reason:
+# the usual verified,unknown filter would silently drop them.
+detectors:
+  - name: schwab-oauth-token
+    keywords: [access_token, refresh_token, id_token]
+    regex:
+      token: '(?:access_token|refresh_token|id_token)\\?["'']?\s*[:=]\s*\\?["'']([A-Za-z0-9._~+/=@-]{16,})'
+    exclude_words: [redacted]
+
+  - name: schwab-app-credential
+    keywords: [schwab]
+    regex:
+      credential: '(?i)SCHWAB_(?:APP_KEY|APP_SECRET|CLIENT_ID|CLIENT_SECRET)["'']?\s*[:=]\s*["'']?([A-Za-z0-9]{16,})'
+    exclude_words: [redacted]
+
+  - name: schwab-account-number
+    keywords: [accountNumber]
+    regex:
+      account: '"accountNumber\\?"\s*:\s*\\?"?([0-9]{6,})'
+
+  - name: schwab-account-hash
+    keywords: [hashValue]
+    regex:
+      hash: '"hashValue\\?"\s*:\s*\\?"([A-Fa-f0-9]{32,})'
