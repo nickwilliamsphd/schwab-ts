@@ -1,0 +1,31 @@
+{
+  "name": "schwab-ts",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickwilliamsphd/schwab-ts.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "check": "vp check",
+    "fix": "vp check --fix",
+    "typecheck": "tsc -p tsconfig.json && pnpm -r run typecheck",
+    "smoke": "pnpm -r run smoke",
+    "test": "vp test run",
+    "test:coverage": "vp test run --coverage",
+    "verify": "pnpm run check && pnpm run typecheck && pnpm run test:coverage && pnpm run build && pnpm run smoke"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@vitest/coverage-v8": "5.1.0",
+    "fast-check": "4.10.2",
+    "typescript": "7.0.2",
+    "vite-plus": "1.7.0"
+  },
+  "engines": {
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
+  },
+  "packageManager": "pnpm@12.22.0+sha512.894940a3d9a57dfa6fd373990fb4e41e09c2f2d76d982ed1d75275d39267f988fb4e2d40900cbe9921c68d97c67aa1a1096d276633db248f7b34927ac9ddb7a4"
+}

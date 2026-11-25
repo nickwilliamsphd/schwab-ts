@@ -3,6 +3,20 @@
 This project is at an early stage and its interfaces will change. Please open
 an issue before starting anything large.
 
+## Setup
+
+You need Node 24 (`.nvmrc`) and pnpm. On Node 24, `corepack enable` installs the
+pinned pnpm version.
+
+```sh
+pnpm install
+pnpm verify   # format, lint, types, tests with coverage, build, smoke test
+pnpm fix      # apply formatting and safe lint fixes
+```
+
+`vp check` type-checks with a beta Rust compiler. `pnpm typecheck` runs
+Microsoft's `tsc`, which is the one that counts.
+
 ## Hard rules
 
 These protect people's money. A pull request that breaks one won't be merged.

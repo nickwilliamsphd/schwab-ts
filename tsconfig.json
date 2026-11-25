@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "isolatedDeclarations": false,
+    "declaration": false
+  },
+  "include": ["vite.config.ts", "tools", "packages/*/test", "packages/*/vite.config.ts"],
+  "exclude": ["tools/lint/fixtures"]
+}
