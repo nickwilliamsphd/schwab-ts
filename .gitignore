@@ -1,0 +1,31 @@
+# Local planning notes and Claude Code state
+.CLAUDE/
+.claude/settings.local.json
+
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+.cache/
+
+# Credentials and tokens: never commit these
+.env*
+!.env.example
+*.tokens.json
+.schwab/
+*.pem
+*.key
+*.p12
+
+# Raw Schwab payloads. Only redacted fixtures may be committed.
+recordings/
+fixtures-raw/
+
+# Logs, editors, OS
+*.log
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

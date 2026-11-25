@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff2 binary
+
+pnpm-lock.yaml -diff linguist-generated=true
+
+# Recorded payloads stay byte-for-byte, so parsing tests see what Schwab sent.
+**/test/fixtures/** -text
